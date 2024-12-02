@@ -1,11 +1,11 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { ProductData } from "@/types/product"
 import { ProductCard } from '@/components/product-card'
 import { products } from '@/lib/data'
-
 
 async function searchProducts(query: string): Promise<ProductData[]> {
   await new Promise(resolve => setTimeout(resolve, 500))
@@ -16,7 +16,7 @@ async function searchProducts(query: string): Promise<ProductData[]> {
   )
 }
 
-export default function SearchPage() {
+function SearchResults() {
   const searchParams = useSearchParams()
   const query = searchParams.get('q') || ''
   const [results, setResults] = useState<ProductData[]>([])
@@ -31,7 +31,7 @@ export default function SearchPage() {
   }, [query])
 
   return (
-    <div className="container mx-auto py-8">
+    <>
       <h1 className="text-3xl font-bold mb-8">{`Search Results for ${query}`}</h1>
       {isLoading ? (
         <p>Loading...</p>
@@ -44,7 +44,16 @@ export default function SearchPage() {
       ) : (
         <p>{`No results found for ${query}. Please try a different search term.`}</p>
       )}
-    </div>
+    </>
   )
 }
 
+export default function SearchPage() {
+  return (
+    <div className="container mx-auto py-8">
+      <Suspense fallback={<p>Loading search results...</p>}>
+        <SearchResults />
+      </Suspense>
+    </div>
+  )
+}
